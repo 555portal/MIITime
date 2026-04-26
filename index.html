@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MII Global Team</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #181c2a;
+      --surface-2: #1e2234;
+      --border: #282e45;
+      --border-light: #323854;
+      --text: #e8eaf6;
+      --muted: #5a6182;
+      --accent: #6366f1;
+      --accent-bright: #818cf8;
+      --green: #22c55e;
+      --amber: #f59e0b;
+      --red: #ef4444;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    .app-header {
+      padding: 12px 28px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background: rgba(15,17,23,0.94);
+      backdrop-filter: blur(12px);
+      z-index: 50;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+    /* Drop in your real logo file as mii-logo.png next to index.html.
+       The SVG mark below shows as fallback / placeholder. */
+    .logo-img {
+      height: 36px;
+      width: auto;
+      display: block;
+    }
+    .logo-mark {
+      /* shown when no logo image */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      flex-shrink: 0;
+    }
+    .logo-text-group {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .logo-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.3px;
+      line-height: 1;
+    }
+    .logo-sub {
+      font-size: 0.68rem;
+      color: var(--muted);
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .header-right { display: flex; align-items: center; gap: 14px; }
+    .my-time-chip {
+      font-size: 0.82rem;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 5px 12px;
+      border-radius: 20px;
+    }
+    .my-time-chip strong { color: var(--text); font-variant-numeric: tabular-nums; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      cursor: pointer;
+      border: none;
+      border-radius: 9px;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      line-height: 1;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-bright); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { color: var(--text); border-color: var(--border-light); background: var(--surface-2); }
+    .btn-danger { background: var(--red); color: #fff; }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-sm { padding: 5px 11px; font-size: 0.78rem; }
+
+    /* ── SCHEDULER ── */
+    .scheduler-wrap {
+      margin: 20px 28px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .scheduler-toggle {
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+    }
+    .scheduler-toggle:hover { background: var(--surface-2); }
+    .scheduler-toggle-title {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--accent-bright);
+    }
+    .chevron { transition: transform 0.2s; color: var(--muted); }
+    .chevron.up { transform: rotate(180deg); }
+    .scheduler-body { padding: 0 20px 20px; border-top: 1px solid var(--border); }
+    .scheduler-inputs {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding-top: 16px;
+    }
+    .scheduler-inputs label { font-size: 0.8rem; color: var(--muted); font-weight: 500; }
+    .sched-input {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 9px;
+      font-size: 0.875rem;
+      color-scheme: dark;
+      transition: border-color 0.15s;
+    }
+    .sched-input:focus { outline: none; border-color: var(--accent-bright); }
+    .sched-legend {
+      display: flex;
+      gap: 14px;
+      margin-top: 12px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      flex-wrap: wrap;
+    }
+    .sched-legend-item { display: flex; align-items: center; gap: 5px; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .sched-results {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .sched-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 13px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: border-color 0.2s;
+    }
+    .sched-card.good { border-color: rgba(34,197,94,0.35); }
+    .sched-card.ok   { border-color: rgba(245,158,11,0.35); }
+    .sched-card.bad  { border-color: rgba(99,102,241,0.15); opacity: 0.7; }
+    .sched-mini-av {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.72rem; font-weight: 700; color: #fff;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .sched-mini-av img { width: 100%; height: 100%; object-fit: cover; }
+    .sched-info { flex: 1; min-width: 0; }
+    .sched-name  { font-size: 0.75rem; color: var(--muted); margin-bottom: 1px; }
+    .sched-time  { font-size: 0.95rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .sched-day   { font-size: 0.73rem; color: var(--muted); }
+    .sched-status { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .sched-empty { color: var(--muted); font-size: 0.85rem; padding: 8px 0; }
+
+    /* ── TEAM SECTION ── */
+    .team-section { padding: 0 28px 40px; }
+    .team-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0 14px;
+    }
+    .team-count { font-size: 0.82rem; color: var(--muted); }
+
+    /* ── GRID ── */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    /* ── PERSON CARD ── */
+    .person-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      position: relative;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    }
+    .person-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.45);
+      border-color: var(--border-light);
+    }
+    .card-stripe { height: 5px; }
+
+    .card-body {
+      padding: 18px 18px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .av-wrap { position: relative; margin-bottom: 12px; }
+    .av {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.45rem; font-weight: 700; color: #fff;
+      position: relative;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .av img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    /* Camera overlay on hover */
+    .av-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+      border-radius: 50%;
+    }
+    .av:hover .av-overlay { opacity: 1; }
+    .av-status {
+      position: absolute;
+      bottom: 3px; right: 3px;
+      width: 15px; height: 15px;
+      border-radius: 50%;
+      border: 2.5px solid var(--surface);
+      z-index: 2;
+    }
+
+    .travel-tag {
+      font-size: 0.68rem;
+      font-weight: 600;
+      background: rgba(245,158,11,0.12);
+      border: 1px solid rgba(245,158,11,0.3);
+      color: var(--amber);
+      padding: 2px 9px;
+      border-radius: 20px;
+      margin-bottom: 5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .person-name { font-size: 1.05rem; font-weight: 600; margin-bottom: 6px; letter-spacing: -0.2px; }
+    .person-time-row { display: flex; align-items: baseline; gap: 3px; margin-bottom: 3px; }
+    .person-time {
+      font-size: 2.4rem;
+      font-weight: 800;
+      letter-spacing: -2px;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+    .person-ampm { font-size: 1rem; font-weight: 400; color: var(--muted); letter-spacing: 0; }
+    .person-date { font-size: 0.78rem; color: var(--muted); margin-bottom: 10px; }
+    .person-loc {
+      font-size: 0.8rem;
+      color: var(--muted);
+      display: flex; align-items: center; justify-content: center;
+      gap: 4px; max-width: 100%; margin-bottom: 2px;
+    }
+    .person-loc span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .home-loc { font-size: 0.7rem; color: var(--muted); opacity: 0.55; margin-bottom: 2px; }
+
+    .card-actions { display: flex; gap: 7px; margin-top: 14px; width: 100%; }
+    .card-btn {
+      flex: 1; padding: 7px 0;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      color: var(--muted);
+      font-size: 0.77rem; font-weight: 500;
+      cursor: pointer; transition: all 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+    }
+    .card-btn:hover { color: var(--text); border-color: var(--border-light); background: var(--surface); }
+    .card-btn.traveling {
+      color: var(--amber);
+      border-color: rgba(245,158,11,0.35);
+      background: rgba(245,158,11,0.07);
+    }
+
+    /* ── ADD CARD ── */
+    .add-card {
+      background: transparent;
+      border: 2px dashed var(--border);
+      border-radius: 18px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 10px; cursor: pointer;
+      min-height: 300px; color: var(--muted);
+      transition: all 0.2s;
+    }
+    .add-card:hover {
+      border-color: var(--accent-bright);
+      color: var(--accent-bright);
+      background: rgba(99,102,241,0.04);
+    }
+    .add-card-circle {
+      width: 44px; height: 44px;
+      border-radius: 50%; background: var(--surface);
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .add-card:hover .add-card-circle { background: var(--surface-2); }
+    .add-card span { font-size: 0.85rem; font-weight: 500; }
+
+    /* ── MODAL ── */
+    .overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200;
+      backdrop-filter: blur(6px);
+    }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: 20px;
+      padding: 28px;
+      width: 440px;
+      max-width: calc(100vw - 36px);
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      animation: pop-in 0.2s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes pop-in {
+      from { opacity: 0; transform: scale(0.93) translateY(12px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-title {
+      font-size: 1.1rem; font-weight: 700; margin-bottom: 22px;
+      display: flex; align-items: center; gap: 9px;
+    }
+    .form-row { margin-bottom: 14px; }
+    .form-row label {
+      display: block; font-size: 0.8rem; font-weight: 600;
+      color: var(--muted); margin-bottom: 6px;
+      text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .form-row input, .form-row select {
+      width: 100%;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 13px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      transition: border-color 0.15s;
+    }
+    .form-row input:focus, .form-row select:focus {
+      outline: none; border-color: var(--accent-bright);
+    }
+
+    /* ── PHOTO UPLOAD ── */
+    .photo-section {
+      margin-bottom: 18px;
+    }
+    .photo-section-label {
+      font-size: 0.8rem; font-weight: 600;
+      color: var(--muted); margin-bottom: 10px;
+      text-transform: uppercase; letter-spacing: 0.04em;
+      display: block;
+    }
+    .photo-upload-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .photo-circle-btn {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      border: 2px dashed var(--border-light);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s;
+      background: var(--surface-2);
+      font-size: 1.3rem; font-weight: 700; color: #fff;
+    }
+    .photo-circle-btn:hover { border-color: var(--accent-bright); }
+    .photo-circle-btn img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .photo-circle-overlay {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.2s;
+      border-radius: 50%;
+    }
+    .photo-circle-btn:hover .photo-circle-overlay { opacity: 1; }
+    .photo-upload-controls {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .photo-upload-controls input[type="text"] {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 9px;
+      font-size: 0.82rem;
+      width: 100%;
+    }
+    .photo-upload-controls input[type="text"]:focus {
+      outline: none; border-color: var(--accent-bright);
+    }
+    .photo-hint { font-size: 0.72rem; color: var(--muted); }
+    .photo-remove-btn {
+      font-size: 0.75rem;
+      color: var(--red);
+      background: none; border: none;
+      cursor: pointer; padding: 0;
+      text-align: left;
+      opacity: 0.8;
+    }
+    .photo-remove-btn:hover { opacity: 1; }
+
+    /* ── CITY AUTOCOMPLETE ── */
+    .city-wrap { position: relative; }
+    .city-dropdown {
+      position: absolute;
+      top: 100%; left: 0; right: 0;
+      background: var(--surface-2);
+      border: 1px solid var(--border-light);
+      border-top: none;
+      border-radius: 0 0 10px 10px;
+      max-height: 210px;
+      overflow-y: auto;
+      z-index: 20;
+    }
+    .city-opt {
+      padding: 9px 13px;
+      cursor: pointer; font-size: 0.875rem;
+      display: flex; justify-content: space-between; align-items: center;
+      transition: background 0.1s;
+    }
+    .city-opt:hover { background: var(--surface); }
+    .city-tz { font-size: 0.72rem; color: var(--muted); }
+    .modal-footer {
+      display: flex; gap: 10px;
+      justify-content: flex-end; margin-top: 22px;
+    }
+    .modal-divider { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+    .remove-btn {
+      width: 100%; background: transparent;
+      border: 1px solid rgba(239,68,68,0.3);
+      color: var(--red); padding: 8px;
+      border-radius: 9px; font-size: 0.83rem;
+      cursor: pointer; transition: all 0.15s; font-weight: 500;
+    }
+    .remove-btn:hover { background: rgba(239,68,68,0.1); border-color: var(--red); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .app-header { padding: 12px 16px; }
+      .scheduler-wrap { margin-left: 16px; margin-right: 16px; }
+      .team-section { padding-left: 16px; padding-right: 16px; }
+      .team-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+      .my-time-chip { display: none; }
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="app-header">
+  <div class="logo">
+    <!--
+      To use your real MII logo: place mii-logo.png in the same folder as index.html.
+      The SVG mark below is a placeholder — it disappears once the image loads.
+    -->
+    <img src="mii-logo.png" alt="MII" class="logo-img" id="logo-img"
+         onerror="this.style.display='none';document.getElementById('logo-mark-fallback').style.display='flex'">
+    <div class="logo-mark" id="logo-mark-fallback" style="display:none">
+      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="1.8">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/>
+      </svg>
+    </div>
+    <div class="logo-text-group">
+      <span class="logo-title">MII Global Team</span>
+      <span class="logo-sub">World Clocks</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="my-time-chip">My time: <strong id="my-time">--:--</strong></div>
+    <button class="btn btn-primary" onclick="openAdd()">
+      <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Add Person
+    </button>
+  </div>
+</header>
+
+<!-- SCHEDULER -->
+<div class="scheduler-wrap">
+  <div class="scheduler-toggle" onclick="toggleSched()">
+    <div class="scheduler-toggle-title">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      Plan a Meeting
+    </div>
+    <svg id="sched-chevron" class="chevron up" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+      <polyline points="6 9 12 15 18 9"/>
+    </svg>
+  </div>
+  <div class="scheduler-body" id="sched-body">
+    <div class="scheduler-inputs">
+      <label>My time</label>
+      <input class="sched-input" type="datetime-local" id="sched-dt" oninput="renderSched()">
+      <span style="font-size:0.8rem;color:var(--muted)" id="my-tz-label"></span>
+    </div>
+    <div class="sched-legend">
+      <div class="sched-legend-item"><div class="legend-dot" style="background:var(--green)"></div> Working hours (9am–6pm)</div>
+      <div class="sched-legend-item"><div class="legend-dot" style="background:var(--amber)"></div> Early/Evening (7–9am, 6–9pm)</div>
+      <div class="sched-legend-item"><div class="legend-dot" style="background:var(--muted)"></div> Outside hours</div>
+    </div>
+    <div class="sched-results" id="sched-results">
+      <p class="sched-empty">Pick a date and time above to see when it lands for each teammate.</p>
+    </div>
+  </div>
+</div>
+
+<!-- TEAM GRID -->
+<section class="team-section">
+  <div class="team-bar">
+    <span class="team-count" id="team-count"></span>
+  </div>
+  <div class="team-grid" id="team-grid"></div>
+</section>
+
+<!-- MODAL: Add / Edit -->
+<div class="overlay" id="person-overlay" style="display:none" onclick="if(event.target===this)closePersonModal()">
+  <div class="modal">
+    <div class="modal-title" id="person-modal-title">Add Team Member</div>
+
+    <!-- PHOTO UPLOAD -->
+    <div class="photo-section">
+      <span class="photo-section-label">Photo</span>
+      <div class="photo-upload-row">
+        <div class="photo-circle-btn" id="m-photo-circle" onclick="document.getElementById('m-photo-file').click()">
+          <div class="photo-circle-overlay">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+              <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+          </div>
+        </div>
+        <input type="file" id="m-photo-file" accept="image/*" style="display:none" onchange="handlePhotoFile(this)">
+        <div class="photo-upload-controls">
+          <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('m-photo-file').click()">
+            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            Upload photo
+          </button>
+          <input type="text" id="m-photo-url" placeholder="Or paste image URL…"
+                 oninput="handlePhotoUrl(this.value)" autocomplete="off">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span class="photo-hint">JPG, PNG, WebP or any image URL</span>
+            <button class="photo-remove-btn" id="m-photo-remove" onclick="clearPhoto()" style="display:none">✕ Remove</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <input type="hidden" id="m-photo-val">
+
+    <div class="form-row">
+      <label>Name</label>
+      <input id="m-name" type="text" placeholder="e.g. Hannah">
+    </div>
+    <div class="form-row">
+      <label>Home City</label>
+      <div class="city-wrap">
+        <input id="m-city" type="text" placeholder="e.g. San Diego" autocomplete="off"
+               oninput="cityAC(this,'m-city-dd','m-tz-val',selectCity)">
+        <div class="city-dropdown" id="m-city-dd" style="display:none"></div>
+      </div>
+    </div>
+    <div class="form-row" id="m-tz-row" style="display:none">
+      <label>Timezone (city not found)</label>
+      <select id="m-tz-sel"></select>
+    </div>
+    <input type="hidden" id="m-tz-val">
+    <div id="m-delete-area"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closePersonModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="savePersonModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Travel -->
+<div class="overlay" id="travel-overlay" style="display:none" onclick="if(event.target===this)closeTravelModal()">
+  <div class="modal">
+    <div class="modal-title">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+      </svg>
+      Update Location
+    </div>
+    <p id="travel-desc" style="font-size:0.83rem;color:var(--muted);margin-bottom:18px;line-height:1.5"></p>
+    <div class="form-row">
+      <label>Current City</label>
+      <div class="city-wrap">
+        <input id="t-city" type="text" placeholder="Where are they right now?" autocomplete="off"
+               oninput="cityAC(this,'t-city-dd','t-tz-val',selectTravelCity)">
+        <div class="city-dropdown" id="t-city-dd" style="display:none"></div>
+      </div>
+    </div>
+    <div class="form-row" id="t-tz-row" style="display:none">
+      <label>Timezone</label>
+      <select id="t-tz-sel"></select>
+    </div>
+    <input type="hidden" id="t-tz-val">
+    <hr class="modal-divider">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <button class="btn btn-ghost btn-sm" style="color:var(--muted)" onclick="clearTravel()">Reset to home</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" onclick="closeTravelModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveTravelModal()">Update</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────
+// CITY → IANA TIMEZONE DATABASE
+// ─────────────────────────────────────────
+const CITIES = {
+  "Los Angeles":"America/Los_Angeles","LA":"America/Los_Angeles",
+  "San Diego":"America/Los_Angeles","San Francisco":"America/Los_Angeles",
+  "Seattle":"America/Los_Angeles","Portland":"America/Los_Angeles",
+  "Las Vegas":"America/Los_Angeles","Sacramento":"America/Los_Angeles",
+  "Vancouver":"America/Vancouver",
+  "Denver":"America/Denver","Bozeman":"America/Denver",
+  "Salt Lake City":"America/Denver","Albuquerque":"America/Denver",
+  "Boise":"America/Denver","Colorado Springs":"America/Denver",
+  "Helena":"America/Denver","Billings":"America/Denver",
+  "Phoenix":"America/Phoenix","Tucson":"America/Phoenix",
+  "Chicago":"America/Chicago","Dallas":"America/Chicago",
+  "Houston":"America/Chicago","Austin":"America/Chicago",
+  "San Antonio":"America/Chicago","Fort Worth":"America/Chicago",
+  "Minneapolis":"America/Chicago","Kansas City":"America/Chicago",
+  "New Orleans":"America/Chicago","Memphis":"America/Chicago",
+  "Nashville":"America/Chicago","Milwaukee":"America/Chicago",
+  "Winnipeg":"America/Winnipeg","Calgary":"America/Edmonton",
+  "Edmonton":"America/Edmonton","Mexico City":"America/Mexico_City",
+  "Guadalajara":"America/Mexico_City","Monterrey":"America/Monterrey",
+  "New York":"America/New_York","New York City":"America/New_York","NYC":"America/New_York",
+  "Miami":"America/New_York","Atlanta":"America/New_York","Boston":"America/New_York",
+  "Philadelphia":"America/New_York","Washington DC":"America/New_York",
+  "Washington D.C.":"America/New_York","Charlotte":"America/New_York",
+  "Orlando":"America/New_York","Tampa":"America/New_York",
+  "Detroit":"America/Detroit","Cleveland":"America/New_York",
+  "Pittsburgh":"America/New_York","Columbus":"America/New_York",
+  "Indianapolis":"America/Indiana/Indianapolis",
+  "Toronto":"America/Toronto","Ottawa":"America/Toronto",
+  "Montreal":"America/Toronto","Quebec City":"America/Toronto",
+  "Anchorage":"America/Anchorage","Honolulu":"Pacific/Honolulu","Hawaii":"Pacific/Honolulu",
+  "Bogota":"America/Bogota","Lima":"America/Lima","Quito":"America/Guayaquil",
+  "Santiago":"America/Santiago","Buenos Aires":"America/Argentina/Buenos_Aires",
+  "Sao Paulo":"America/Sao_Paulo","Rio de Janeiro":"America/Sao_Paulo",
+  "Brasilia":"America/Sao_Paulo","Caracas":"America/Caracas",
+  "Panama City":"America/Panama","Havana":"America/Havana",
+  "London":"Europe/London","Dublin":"Europe/Dublin",
+  "Edinburgh":"Europe/London","Manchester":"Europe/London",
+  "Paris":"Europe/Paris","Lyon":"Europe/Paris","Marseille":"Europe/Paris",
+  "Berlin":"Europe/Berlin","Munich":"Europe/Berlin","Hamburg":"Europe/Berlin",
+  "Frankfurt":"Europe/Berlin","Cologne":"Europe/Berlin",
+  "Madrid":"Europe/Madrid","Barcelona":"Europe/Madrid","Seville":"Europe/Madrid",
+  "Rome":"Europe/Rome","Milan":"Europe/Rome","Naples":"Europe/Rome",
+  "Florence":"Europe/Rome","Venice":"Europe/Rome",
+  "Amsterdam":"Europe/Amsterdam","Rotterdam":"Europe/Amsterdam",
+  "Brussels":"Europe/Brussels","Antwerp":"Europe/Brussels",
+  "Zurich":"Europe/Zurich","Geneva":"Europe/Zurich","Bern":"Europe/Zurich",
+  "Vienna":"Europe/Vienna","Salzburg":"Europe/Vienna",
+  "Prague":"Europe/Prague","Warsaw":"Europe/Warsaw","Krakow":"Europe/Warsaw",
+  "Budapest":"Europe/Budapest","Bucharest":"Europe/Bucharest",
+  "Sofia":"Europe/Sofia","Belgrade":"Europe/Belgrade",
+  "Stockholm":"Europe/Stockholm","Oslo":"Europe/Oslo",
+  "Copenhagen":"Europe/Copenhagen","Helsinki":"Europe/Helsinki",
+  "Tallinn":"Europe/Tallinn","Riga":"Europe/Riga","Vilnius":"Europe/Vilnius",
+  "Lisbon":"Europe/Lisbon","Porto":"Europe/Lisbon","Athens":"Europe/Athens",
+  "Istanbul":"Europe/Istanbul","Ankara":"Europe/Istanbul","Izmir":"Europe/Istanbul",
+  "Turkey":"Europe/Istanbul",
+  "Kyiv":"Europe/Kyiv","Kiev":"Europe/Kyiv","Minsk":"Europe/Minsk",
+  "Moscow":"Europe/Moscow","St Petersburg":"Europe/Moscow",
+  "Reykjavik":"Atlantic/Reykjavik",
+  "Dubai":"Asia/Dubai","Abu Dhabi":"Asia/Dubai","Sharjah":"Asia/Dubai",
+  "Doha":"Asia/Qatar","Kuwait City":"Asia/Kuwait",
+  "Riyadh":"Asia/Riyadh","Jeddah":"Asia/Riyadh","Mecca":"Asia/Riyadh",
+  "Muscat":"Asia/Muscat","Manama":"Asia/Bahrain",
+  "Beirut":"Asia/Beirut","Damascus":"Asia/Damascus","Amman":"Asia/Amman",
+  "Baghdad":"Asia/Baghdad","Tehran":"Asia/Tehran",
+  "Tel Aviv":"Asia/Jerusalem","Jerusalem":"Asia/Jerusalem",
+  "Cairo":"Africa/Cairo","Alexandria":"Africa/Cairo",
+  "Lagos":"Africa/Lagos","Abuja":"Africa/Lagos",
+  "Nairobi":"Africa/Nairobi","Addis Ababa":"Africa/Addis_Ababa",
+  "Johannesburg":"Africa/Johannesburg","Cape Town":"Africa/Johannesburg",
+  "Durban":"Africa/Johannesburg","Pretoria":"Africa/Johannesburg",
+  "Casablanca":"Africa/Casablanca","Rabat":"Africa/Casablanca",
+  "Marrakech":"Africa/Casablanca","Tunis":"Africa/Tunis","Algiers":"Africa/Algiers",
+  "Accra":"Africa/Accra","Dakar":"Africa/Dakar","Khartoum":"Africa/Khartoum",
+  "Tripoli":"Africa/Tripoli","Kinshasa":"Africa/Kinshasa",
+  "Mumbai":"Asia/Kolkata","Bombay":"Asia/Kolkata","Delhi":"Asia/Kolkata",
+  "New Delhi":"Asia/Kolkata","Bangalore":"Asia/Kolkata","Bengaluru":"Asia/Kolkata",
+  "Chennai":"Asia/Kolkata","Madras":"Asia/Kolkata","Kolkata":"Asia/Kolkata",
+  "Hyderabad":"Asia/Kolkata","Pune":"Asia/Kolkata","Ahmedabad":"Asia/Kolkata",
+  "Jaipur":"Asia/Kolkata","Lucknow":"Asia/Kolkata","India":"Asia/Kolkata",
+  "Karachi":"Asia/Karachi","Lahore":"Asia/Karachi","Islamabad":"Asia/Karachi",
+  "Rawalpindi":"Asia/Karachi","Faisalabad":"Asia/Karachi","Pakistan":"Asia/Karachi",
+  "Dhaka":"Asia/Dhaka","Colombo":"Asia/Colombo",
+  "Kathmandu":"Asia/Kathmandu","Kabul":"Asia/Kabul",
+  "Tashkent":"Asia/Tashkent","Almaty":"Asia/Almaty","Baku":"Asia/Baku",
+  "Yerevan":"Asia/Yerevan","Tbilisi":"Asia/Tbilisi",
+  "Bangkok":"Asia/Bangkok","Phuket":"Asia/Bangkok","Chiang Mai":"Asia/Bangkok",
+  "Ho Chi Minh City":"Asia/Ho_Chi_Minh","Hanoi":"Asia/Bangkok",
+  "Phnom Penh":"Asia/Phnom_Penh","Jakarta":"Asia/Jakarta","Bali":"Asia/Makassar",
+  "Singapore":"Asia/Singapore","Kuala Lumpur":"Asia/Kuala_Lumpur",
+  "Manila":"Asia/Manila","Hong Kong":"Asia/Hong_Kong",
+  "Shanghai":"Asia/Shanghai","Beijing":"Asia/Shanghai","Guangzhou":"Asia/Shanghai",
+  "Shenzhen":"Asia/Shanghai","Chengdu":"Asia/Shanghai","Wuhan":"Asia/Shanghai",
+  "Taipei":"Asia/Taipei","Seoul":"Asia/Seoul","Busan":"Asia/Seoul",
+  "Tokyo":"Asia/Tokyo","Osaka":"Asia/Tokyo","Kyoto":"Asia/Tokyo",
+  "Yokohama":"Asia/Tokyo","Nagoya":"Asia/Tokyo","Sapporo":"Asia/Tokyo",
+  "Sydney":"Australia/Sydney","Melbourne":"Australia/Melbourne",
+  "Brisbane":"Australia/Brisbane","Perth":"Australia/Perth",
+  "Adelaide":"Australia/Adelaide","Darwin":"Australia/Darwin",
+  "Canberra":"Australia/Sydney","Auckland":"Pacific/Auckland",
+  "Wellington":"Pacific/Auckland","Christchurch":"Pacific/Auckland",
+  "Fiji":"Pacific/Fiji","Suva":"Pacific/Fiji",
+};
+
+const TZ_LIST = [
+  {v:"Pacific/Honolulu",     l:"UTC−10  Hawaii"},
+  {v:"America/Anchorage",    l:"UTC−09  Alaska"},
+  {v:"America/Los_Angeles",  l:"UTC−08  Pacific (US)"},
+  {v:"America/Denver",       l:"UTC−07  Mountain (US)"},
+  {v:"America/Phoenix",      l:"UTC−07  Arizona (no DST)"},
+  {v:"America/Chicago",      l:"UTC−06  Central (US)"},
+  {v:"America/Mexico_City",  l:"UTC−06  Mexico City"},
+  {v:"America/New_York",     l:"UTC−05  Eastern (US)"},
+  {v:"America/Bogota",       l:"UTC−05  Colombia / Peru"},
+  {v:"America/Caracas",      l:"UTC−04  Venezuela"},
+  {v:"America/Halifax",      l:"UTC−04  Atlantic"},
+  {v:"America/Sao_Paulo",    l:"UTC−03  Brazil / Buenos Aires"},
+  {v:"Atlantic/Azores",      l:"UTC−01  Azores"},
+  {v:"Europe/London",        l:"UTC±00  London / Dublin"},
+  {v:"Europe/Paris",         l:"UTC+01  Paris / Berlin / Rome"},
+  {v:"Africa/Cairo",         l:"UTC+02  Cairo / Athens"},
+  {v:"Europe/Istanbul",      l:"UTC+03  Istanbul / Turkey"},
+  {v:"Europe/Moscow",        l:"UTC+03  Moscow / Nairobi"},
+  {v:"Asia/Tehran",          l:"UTC+03:30  Iran"},
+  {v:"Asia/Dubai",           l:"UTC+04  Dubai / UAE"},
+  {v:"Asia/Kabul",           l:"UTC+04:30  Afghanistan"},
+  {v:"Asia/Karachi",         l:"UTC+05  Pakistan"},
+  {v:"Asia/Kolkata",         l:"UTC+05:30  India"},
+  {v:"Asia/Kathmandu",       l:"UTC+05:45  Nepal"},
+  {v:"Asia/Dhaka",           l:"UTC+06  Bangladesh"},
+  {v:"Asia/Rangoon",         l:"UTC+06:30  Myanmar"},
+  {v:"Asia/Bangkok",         l:"UTC+07  Bangkok / Jakarta"},
+  {v:"Asia/Singapore",       l:"UTC+08  Singapore / China"},
+  {v:"Asia/Tokyo",           l:"UTC+09  Tokyo / Seoul"},
+  {v:"Australia/Adelaide",   l:"UTC+09:30  Adelaide"},
+  {v:"Australia/Sydney",     l:"UTC+10  Sydney / Melbourne"},
+  {v:"Pacific/Auckland",     l:"UTC+12  Auckland / Fiji"},
+];
+
+// ─────────────────────────────────────────
+// AVATAR COLORS
+// ─────────────────────────────────────────
+const AV_COLORS = [
+  '#6366f1','#8b5cf6','#ec4899','#ef4444','#f97316',
+  '#eab308','#22c55e','#14b8a6','#3b82f6','#06b6d4','#a855f7','#f43f5e',
+];
+function nameColor(name) {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
+  return AV_COLORS[Math.abs(h) % AV_COLORS.length];
+}
+function initials(name) {
+  return name.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+}
+
+// ─────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────
+const DEFAULT_TEAM = [
+  {id:1, name:'Hannah', city:'San Diego',  tz:'America/Los_Angeles', photo:'', traveling:false, travelCity:'', travelTz:''},
+  {id:2, name:'David',  city:'Dallas',     tz:'America/Chicago',     photo:'', traveling:false, travelCity:'', travelTz:''},
+  {id:3, name:'Nick',   city:'Bozeman',    tz:'America/Denver',      photo:'', traveling:true,  travelCity:'', travelTz:''},
+  {id:4, name:'Becky',  city:'Bangalore',  tz:'Asia/Kolkata',        photo:'', traveling:false, travelCity:'', travelTz:''},
+  {id:5, name:'Elif',   city:'Istanbul',   tz:'Europe/Istanbul',     photo:'', traveling:false, travelCity:'', travelTz:''},
+  {id:6, name:'Kashif', city:'Karachi',    tz:'Asia/Karachi',        photo:'', traveling:false, travelCity:'', travelTz:''},
+  {id:7, name:'Raed',   city:'Cairo',      tz:'Africa/Cairo',        photo:'', traveling:false, travelCity:'', travelTz:''},
+  {id:8, name:'Basma',  city:'Cairo',      tz:'Africa/Cairo',        photo:'', traveling:false, travelCity:'', travelTz:''},
+];
+
+function loadTeam() {
+  try { const s = localStorage.getItem('tc_team'); return s ? JSON.parse(s) : DEFAULT_TEAM; }
+  catch { return DEFAULT_TEAM; }
+}
+function persistTeam() { localStorage.setItem('tc_team', JSON.stringify(team)); }
+
+let team = loadTeam();
+let nextId = Math.max(0, ...team.map(p => p.id)) + 1;
+
+// ─────────────────────────────────────────
+// TIME HELPERS
+// ─────────────────────────────────────────
+function activeTz(p) { return (p.traveling && p.travelTz) ? p.travelTz : p.tz; }
+
+function fmtTime(tz) {
+  return new Intl.DateTimeFormat('en-US', {timeZone:tz, hour:'numeric', minute:'2-digit', hour12:true}).format(new Date());
+}
+function fmtDate(tz) {
+  return new Intl.DateTimeFormat('en-US', {timeZone:tz, weekday:'long', month:'short', day:'numeric'}).format(new Date());
+}
+function localHour(tz, d) {
+  return parseInt(new Intl.DateTimeFormat('en-US', {timeZone:tz, hour:'numeric', hour12:false}).format(d || new Date()));
+}
+function workStatus(tz, d) {
+  const h = localHour(tz, d);
+  if (h >= 9 && h < 18)                          return {color:'var(--green)',  cls:'good'};
+  if ((h >= 7 && h < 9) || (h >= 18 && h < 21)) return {color:'var(--amber)',  cls:'ok'};
+  return {color:'var(--muted)', cls:'bad'};
+}
+
+function escH(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─────────────────────────────────────────
+// AVATAR HTML helper
+// ─────────────────────────────────────────
+function avatarHtml(p, size = 72) {
+  const color = nameColor(p.name);
+  if (p.photo) {
+    return `<img src="${escH(p.photo)}" alt="${escH(p.name)}" onerror="this.parentElement.innerHTML=avatarInitialsHtml('${escH(p.name)}')">`;
+  }
+  return `<span style="font-size:${size * 0.38}px;font-weight:700;color:#fff;user-select:none">${initials(p.name)}</span>`;
+}
+// Returns the initials span (used in error fallback)
+function avatarInitialsHtml(name) {
+  return `<span style="font-size:27px;font-weight:700;color:#fff;user-select:none">${initials(name)}</span>`;
+}
+
+// ─────────────────────────────────────────
+// HEADER CLOCK
+// ─────────────────────────────────────────
+const MY_TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
+function tickHeader() { document.getElementById('my-time').textContent = fmtTime(MY_TZ); }
+setInterval(tickHeader, 1000);
+tickHeader();
+
+// Show tz label in scheduler
+document.getElementById('my-tz-label').textContent = '(' + MY_TZ.replace(/_/g,' ') + ')';
+
+// ─────────────────────────────────────────
+// CARD CLOCKS (lightweight DOM update)
+// ─────────────────────────────────────────
+function tickCards() {
+  document.querySelectorAll('[data-card-tz]').forEach(el => {
+    const [tp, ap] = fmtTime(el.dataset.cardTz).split(' ');
+    el.innerHTML = tp + `<span class="person-ampm"> ${ap}</span>`;
+  });
+}
+setInterval(tickCards, 1000);
+
+// ─────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────
+function renderAll() {
+  renderGrid();
+  renderSched();
+  document.getElementById('team-count').textContent =
+    `${team.length} ${team.length === 1 ? 'person' : 'people'}`;
+}
+
+function renderGrid() {
+  const grid = document.getElementById('team-grid');
+  grid.innerHTML = '';
+
+  team.forEach(p => {
+    const tz       = activeTz(p);
+    const color    = nameColor(p.name);
+    const ws       = workStatus(tz);
+    const t        = fmtTime(tz);
+    const [tp, ap] = t.split(' ');
+    const isTravel = p.traveling;
+    const showCity = (isTravel && p.travelCity) ? p.travelCity : p.city;
+
+    const card = document.createElement('div');
+    card.className = 'person-card';
+    card.innerHTML = `
+      <div class="card-stripe" style="background:${color}"></div>
+      <div class="card-body">
+        <div class="av-wrap">
+          <div class="av" style="background:${p.photo ? '#1e2234' : color}" onclick="openEdit(${p.id})" title="Click to edit">
+            ${avatarHtml(p)}
+            <div class="av-overlay">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+            </div>
+            <div class="av-status" style="background:${ws.color}"></div>
+          </div>
+        </div>
+        ${isTravel ? `<div class="travel-tag">✈ Traveling${p.travelCity ? ': '+escH(p.travelCity) : ''}</div>` : ''}
+        <div class="person-name">${escH(p.name)}</div>
+        <div class="person-time-row">
+          <div class="person-time" style="color:${color}" data-card-tz="${tz}">${tp}<span class="person-ampm"> ${ap}</span></div>
+        </div>
+        <div class="person-date">${fmtDate(tz)}</div>
+        <div class="person-loc">
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          <span>${escH(showCity)}</span>
+        </div>
+        ${isTravel && p.travelCity ? `<div class="home-loc">Home: ${escH(p.city)}</div>` : ''}
+        <div class="card-actions">
+          <button class="card-btn ${isTravel ? 'traveling' : ''}" onclick="openTravel(${p.id})">
+            <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+            </svg>
+            ${isTravel ? 'Traveling' : 'Travel'}
+          </button>
+          <button class="card-btn" onclick="openEdit(${p.id})">
+            <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            Edit
+          </button>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  // Add card
+  const add = document.createElement('div');
+  add.className = 'add-card';
+  add.onclick = openAdd;
+  add.innerHTML = `
+    <div class="add-card-circle">
+      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+    </div>
+    <span>Add team member</span>
+  `;
+  grid.appendChild(add);
+}
+
+// ─────────────────────────────────────────
+// SCHEDULER
+// ─────────────────────────────────────────
+let schedOpen = true;
+function toggleSched() {
+  schedOpen = !schedOpen;
+  document.getElementById('sched-body').style.display = schedOpen ? '' : 'none';
+  document.getElementById('sched-chevron').classList.toggle('up', schedOpen);
+}
+
+function renderSched() {
+  const dtStr = document.getElementById('sched-dt').value;
+  const el = document.getElementById('sched-results');
+  if (!dtStr) {
+    el.innerHTML = '<p class="sched-empty">Pick a date and time above to see when it lands for each teammate.</p>';
+    return;
+  }
+  const [datePart, timePart] = dtStr.split('T');
+  const [y, mo, d] = datePart.split('-').map(Number);
+  const [h, m] = timePart.split(':').map(Number);
+  const date = new Date(y, mo - 1, d, h, m);
+
+  el.innerHTML = team.map(p => {
+    const tz = activeTz(p);
+    const color = nameColor(p.name);
+    const ws = workStatus(tz, date);
+    const timeStr = new Intl.DateTimeFormat('en-US', {
+      timeZone: tz, hour: 'numeric', minute: '2-digit', hour12: true
+    }).format(date);
+    const dayStr = new Intl.DateTimeFormat('en-US', {
+      timeZone: tz, weekday: 'short', month: 'short', day: 'numeric'
+    }).format(date);
+    const miniAvInner = p.photo
+      ? `<img src="${escH(p.photo)}" alt="${escH(p.name)}">`
+      : initials(p.name);
+    const miniBg = p.photo ? '#1e2234' : color;
+    return `
+      <div class="sched-card ${ws.cls}">
+        <div class="sched-mini-av" style="background:${miniBg}">${miniAvInner}</div>
+        <div class="sched-info">
+          <div class="sched-name">${escH(p.name)}</div>
+          <div class="sched-time">${timeStr}</div>
+          <div class="sched-day">${dayStr}</div>
+        </div>
+        <div class="sched-status" style="background:${ws.color}"></div>
+      </div>
+    `;
+  }).join('');
+}
+
+function initSchedTime() {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() < 30 ? 0 : 30);
+  now.setSeconds(0); now.setMilliseconds(0);
+  const iso = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  document.getElementById('sched-dt').value = iso;
+  renderSched();
+}
+
+// ─────────────────────────────────────────
+// PHOTO UPLOAD
+// ─────────────────────────────────────────
+function handlePhotoFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const dataUrl = e.target.result;
+    applyPhotoPreview(dataUrl);
+    document.getElementById('m-photo-url').value = '';
+  };
+  reader.readAsDataURL(file);
+}
+
+function handlePhotoUrl(url) {
+  if (url.trim()) {
+    applyPhotoPreview(url.trim());
+  } else {
+    clearPhoto();
+  }
+}
+
+function applyPhotoPreview(src) {
+  document.getElementById('m-photo-val').value = src;
+  const circle = document.getElementById('m-photo-circle');
+  // Build avatar content — clear initials, show image
+  const colorBg = currentModalColor || '#1e2234';
+  circle.style.background = '#1e2234';
+  circle.innerHTML = `
+    <img src="${escH(src)}" alt="Preview" style="width:100%;height:100%;object-fit:cover;display:block"
+         onerror="clearPhoto()">
+    <div class="photo-circle-overlay">
+      <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+        <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+        <circle cx="12" cy="13" r="4"/>
+      </svg>
+    </div>
+  `;
+  circle.onclick = () => document.getElementById('m-photo-file').click();
+  document.getElementById('m-photo-remove').style.display = 'inline';
+}
+
+let currentModalColor = '';
+
+function resetPhotoSection(name, existingPhoto) {
+  const color = nameColor(name || 'X');
+  currentModalColor = color;
+  const circle = document.getElementById('m-photo-circle');
+  document.getElementById('m-photo-remove').style.display = existingPhoto ? 'inline' : 'none';
+  document.getElementById('m-photo-url').value = existingPhoto && existingPhoto.startsWith('http') ? existingPhoto : '';
+  document.getElementById('m-photo-val').value = existingPhoto || '';
+
+  if (existingPhoto) {
+    circle.style.background = '#1e2234';
+    circle.innerHTML = `
+      <img src="${escH(existingPhoto)}" alt="Preview" style="width:100%;height:100%;object-fit:cover;display:block"
+           onerror="clearPhoto()">
+      <div class="photo-circle-overlay">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+          <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+          <circle cx="12" cy="13" r="4"/>
+        </svg>
+      </div>
+    `;
+  } else {
+    circle.style.background = color;
+    circle.innerHTML = `
+      <span style="font-size:1.4rem;font-weight:700;color:#fff">${initials(name || '?')}</span>
+      <div class="photo-circle-overlay">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+          <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+          <circle cx="12" cy="13" r="4"/>
+        </svg>
+      </div>
+    `;
+  }
+  circle.onclick = () => document.getElementById('m-photo-file').click();
+}
+
+function clearPhoto() {
+  document.getElementById('m-photo-val').value = '';
+  document.getElementById('m-photo-url').value = '';
+  document.getElementById('m-photo-file').value = '';
+  document.getElementById('m-photo-remove').style.display = 'none';
+  const name = document.getElementById('m-name').value || '?';
+  const color = nameColor(name);
+  const circle = document.getElementById('m-photo-circle');
+  circle.style.background = color;
+  circle.innerHTML = `
+    <span style="font-size:1.4rem;font-weight:700;color:#fff">${initials(name)}</span>
+    <div class="photo-circle-overlay">
+      <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+        <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+        <circle cx="12" cy="13" r="4"/>
+      </svg>
+    </div>
+  `;
+  circle.onclick = () => document.getElementById('m-photo-file').click();
+}
+
+// Update initials preview when name changes
+document.getElementById('m-name').addEventListener('input', function() {
+  if (!document.getElementById('m-photo-val').value) {
+    const color = nameColor(this.value || 'X');
+    const circle = document.getElementById('m-photo-circle');
+    circle.style.background = color;
+    const initEl = circle.querySelector('span');
+    if (initEl) initEl.textContent = initials(this.value || '?');
+  }
+});
+
+// ─────────────────────────────────────────
+// CITY AUTOCOMPLETE
+// ─────────────────────────────────────────
+function cityAC(input, ddId, valId, selectFn) {
+  const q = input.value.trim().toLowerCase();
+  const dd = document.getElementById(ddId);
+  const valEl = document.getElementById(valId);
+  if (q.length < 2) { dd.style.display = 'none'; valEl.value = ''; return; }
+  const starts   = Object.entries(CITIES).filter(([c]) => c.toLowerCase().startsWith(q));
+  const contains = Object.entries(CITIES).filter(([c]) => !c.toLowerCase().startsWith(q) && c.toLowerCase().includes(q));
+  const matches  = [...starts, ...contains].slice(0, 9);
+  if (!matches.length) { dd.style.display = 'none'; valEl.value = ''; return; }
+  dd.innerHTML = matches.map(([city, tz], i) => `
+    <div class="city-opt" data-idx="${i}">
+      <span>${escH(city)}</span>
+      <span class="city-tz">${tz.split('/').pop().replace(/_/g,' ')}</span>
+    </div>
+  `).join('');
+  dd._matches = matches;
+  dd.onclick = (e) => {
+    const opt = e.target.closest('.city-opt');
+    if (!opt) return;
+    const [city, tz] = dd._matches[+opt.dataset.idx];
+    selectFn(city, tz, input, ddId, valId);
+  };
+  dd.style.display = 'block';
+}
+
+function selectCity(city, tz, input, ddId, valId) {
+  (input || document.getElementById('m-city')).value = city;
+  document.getElementById(valId || 'm-tz-val').value = tz;
+  document.getElementById(ddId || 'm-city-dd').style.display = 'none';
+  document.getElementById('m-tz-row').style.display = 'none';
+}
+function selectTravelCity(city, tz, input, ddId, valId) {
+  (input || document.getElementById('t-city')).value = city;
+  document.getElementById(valId || 't-tz-val').value = tz;
+  document.getElementById(ddId || 't-city-dd').style.display = 'none';
+  document.getElementById('t-tz-row').style.display = 'none';
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.city-wrap')) {
+    document.querySelectorAll('.city-dropdown').forEach(d => d.style.display = 'none');
+  }
+});
+
+// ─────────────────────────────────────────
+// MODAL: ADD / EDIT
+// ─────────────────────────────────────────
+let editId = null;
+
+function populateTzSelects() {
+  const opts = TZ_LIST.map(t => `<option value="${t.v}">${t.l}</option>`).join('');
+  document.getElementById('m-tz-sel').innerHTML = opts;
+  document.getElementById('t-tz-sel').innerHTML = opts;
+}
+
+function openAdd() {
+  editId = null;
+  document.getElementById('person-modal-title').textContent = 'Add Team Member';
+  document.getElementById('m-name').value = '';
+  document.getElementById('m-city').value = '';
+  document.getElementById('m-tz-val').value = '';
+  document.getElementById('m-tz-row').style.display = 'none';
+  document.getElementById('m-delete-area').innerHTML = '';
+  document.getElementById('m-city-dd').style.display = 'none';
+  document.getElementById('m-photo-file').value = '';
+  resetPhotoSection('', '');
+  document.getElementById('person-overlay').style.display = 'flex';
+  setTimeout(() => document.getElementById('m-name').focus(), 80);
+}
+
+function openEdit(id) {
+  const p = team.find(x => x.id === id);
+  if (!p) return;
+  editId = id;
+  document.getElementById('person-modal-title').textContent = `Edit ${p.name}`;
+  document.getElementById('m-name').value = p.name;
+  document.getElementById('m-city').value = p.city;
+  document.getElementById('m-tz-val').value = p.tz;
+  document.getElementById('m-tz-row').style.display = 'none';
+  document.getElementById('m-city-dd').style.display = 'none';
+  document.getElementById('m-photo-file').value = '';
+  resetPhotoSection(p.name, p.photo || '');
+  document.getElementById('m-delete-area').innerHTML = `
+    <hr class="modal-divider">
+    <button class="remove-btn" onclick="deletePerson(${id})">Remove ${escH(p.name)} from team</button>
+  `;
+  document.getElementById('person-overlay').style.display = 'flex';
+  setTimeout(() => document.getElementById('m-name').focus(), 80);
+}
+
+function closePersonModal() {
+  document.getElementById('person-overlay').style.display = 'none';
+}
+
+function savePersonModal() {
+  const name  = document.getElementById('m-name').value.trim();
+  const city  = document.getElementById('m-city').value.trim();
+  const photo = document.getElementById('m-photo-val').value;
+  let tz = document.getElementById('m-tz-val').value;
+  if (!tz) tz = document.getElementById('m-tz-sel').value;
+
+  if (!name) { alert('Please enter a name.'); return; }
+  if (!city) { alert('Please enter a city.'); return; }
+  if (!tz)   { alert('Please choose a timezone.'); return; }
+
+  if (editId) {
+    const i = team.findIndex(p => p.id === editId);
+    if (i !== -1) team[i] = {...team[i], name, city, tz, photo};
+  } else {
+    team.push({id: nextId++, name, city, tz, photo, traveling: false, travelCity: '', travelTz: ''});
+  }
+  persistTeam();
+  closePersonModal();
+  renderAll();
+}
+
+function deletePerson(id) {
+  const p = team.find(x => x.id === id);
+  if (!p || !confirm(`Remove ${p.name} from the team?`)) return;
+  team = team.filter(x => x.id !== id);
+  persistTeam();
+  closePersonModal();
+  renderAll();
+}
+
+// ─────────────────────────────────────────
+// MODAL: TRAVEL
+// ─────────────────────────────────────────
+let travelId = null;
+function openTravel(id) {
+  const p = team.find(x => x.id === id);
+  if (!p) return;
+  travelId = id;
+  document.getElementById('travel-desc').textContent =
+    `${p.name}'s home is ${p.city}. Update their location if they're currently elsewhere.`;
+  document.getElementById('t-city').value = (p.traveling && p.travelCity) ? p.travelCity : '';
+  document.getElementById('t-tz-val').value = (p.traveling && p.travelTz) ? p.travelTz : '';
+  document.getElementById('t-tz-row').style.display = 'none';
+  document.getElementById('t-city-dd').style.display = 'none';
+  document.getElementById('travel-overlay').style.display = 'flex';
+  setTimeout(() => document.getElementById('t-city').focus(), 80);
+}
+function closeTravelModal() { document.getElementById('travel-overlay').style.display = 'none'; }
+function saveTravelModal() {
+  const city = document.getElementById('t-city').value.trim();
+  let tz = document.getElementById('t-tz-val').value;
+  if (!tz) tz = document.getElementById('t-tz-sel').value;
+  if (!city) { clearTravel(); return; }
+  if (!tz)   { alert('Please choose a timezone for this location.'); return; }
+  const i = team.findIndex(p => p.id === travelId);
+  if (i !== -1) team[i] = {...team[i], traveling: true, travelCity: city, travelTz: tz};
+  persistTeam(); closeTravelModal(); renderAll();
+}
+function clearTravel() {
+  const i = team.findIndex(p => p.id === travelId);
+  if (i !== -1) team[i] = {...team[i], traveling: false, travelCity: '', travelTz: ''};
+  persistTeam(); closeTravelModal(); renderAll();
+}
+
+// ─────────────────────────────────────────
+// KEYBOARD
+// ─────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closePersonModal(); closeTravelModal(); }
+});
+
+// ─────────────────────────────────────────
+// Check if real logo image exists
+// ─────────────────────────────────────────
+(function() {
+  const img = document.getElementById('logo-img');
+  const fallback = document.getElementById('logo-mark-fallback');
+  // If image hasn't errored yet but src is relative and not found, show fallback
+  img.addEventListener('load', () => { img.style.display = 'block'; fallback.style.display = 'none'; });
+  img.addEventListener('error', () => { img.style.display = 'none'; fallback.style.display = 'flex'; });
+  // If already failed (cached 404):
+  if (img.complete && img.naturalWidth === 0) { img.style.display = 'none'; fallback.style.display = 'flex'; }
+})();
+
+// ─────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────
+populateTzSelects();
+initSchedTime();
+renderAll();
+setInterval(() => { renderGrid(); renderSched(); }, 60000);
+</script>
+</body>
+</html>
