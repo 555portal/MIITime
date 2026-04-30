@@ -286,6 +286,14 @@
       transition: opacity 0.2s; pointer-events: none; z-index: 5;
     }
     .person-card:hover .drag-handle { opacity: 0.5; }
+    /* Touch drag ghost */
+    .touch-ghost {
+      position: fixed; pointer-events: none; z-index: 500;
+      opacity: 0.85; transform: scale(1.05) rotate(1.5deg);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+      border-radius: 18px; overflow: hidden;
+      transition: none;
+    }
 
     /* ── ADD CARD ── */
     .add-card {
@@ -1040,12 +1048,17 @@ function renderGrid() {
         </div>
       </div>`;
 
-    // Drag events
+    // Drag events (desktop)
     card.addEventListener('dragstart', onDragStart);
     card.addEventListener('dragover',  onDragOver);
     card.addEventListener('dragleave', onDragLeave);
     card.addEventListener('drop',      onDrop);
     card.addEventListener('dragend',   onDragEnd);
+
+    // Touch events (mobile)
+    card.addEventListener('touchstart', onTouchStart, {passive: true});
+    card.addEventListener('touchmove',  onTouchMove,  {passive: false});
+    card.addEventListener('touchend',   onTouchEnd,   {passive: true});
 
     grid.appendChild(card);
   });
@@ -1111,6 +1124,91 @@ async function onDrop(e) {
   });
   try { await batch.commit(); }
   catch(err) { console.error('Order save failed:', err); }
+}
+
+// ─────────────────────────────────────────
+// TOUCH DRAG & DROP (mobile)
+// ─────────────────────────────────────────
+let touchSrcId   = null;
+let touchGhost   = null;
+let touchOffsetX = 0;
+let touchOffsetY = 0;
+let touchTarget  = null;
+let touchMoved   = false;
+
+function onTouchStart(e) {
+  const touch = e.touches[0];
+  touchSrcId  = parseInt(this.dataset.id);
+  touchMoved  = false;
+  touchTarget = null;
+
+  const rect = this.getBoundingClientRect();
+  touchOffsetX = touch.clientX - rect.left;
+  touchOffsetY = touch.clientY - rect.top;
+
+  // Clone card as ghost
+  touchGhost = this.cloneNode(true);
+  touchGhost.classList.add('touch-ghost');
+  touchGhost.style.width  = rect.width  + 'px';
+  touchGhost.style.height = rect.height + 'px';
+  touchGhost.style.left   = (touch.clientX - touchOffsetX) + 'px';
+  touchGhost.style.top    = (touch.clientY - touchOffsetY) + 'px';
+  document.body.appendChild(touchGhost);
+
+  this.classList.add('dragging');
+}
+
+function onTouchMove(e) {
+  if (!touchGhost) return;
+  e.preventDefault(); // stop page scroll while dragging
+  touchMoved = true;
+
+  const touch = e.touches[0];
+  touchGhost.style.left = (touch.clientX - touchOffsetX) + 'px';
+  touchGhost.style.top  = (touch.clientY - touchOffsetY) + 'px';
+
+  // Find card under finger (hide ghost so elementFromPoint works)
+  touchGhost.style.display = 'none';
+  const el = document.elementFromPoint(touch.clientX, touch.clientY);
+  touchGhost.style.display = '';
+
+  const card = el ? el.closest('.person-card[data-id]') : null;
+  const overId = card ? parseInt(card.dataset.id) : null;
+
+  // Highlight target
+  document.querySelectorAll('.person-card').forEach(c => c.classList.remove('drag-over'));
+  if (card && overId !== touchSrcId) {
+    card.classList.add('drag-over');
+    touchTarget = overId;
+  } else {
+    touchTarget = null;
+  }
+}
+
+async function onTouchEnd() {
+  // Clean up ghost
+  if (touchGhost) { touchGhost.remove(); touchGhost = null; }
+  document.querySelectorAll('.person-card').forEach(c => c.classList.remove('drag-over', 'dragging'));
+
+  if (!touchMoved || !touchTarget || touchTarget === touchSrcId) return;
+
+  const srcIdx = team.findIndex(p => p.id === touchSrcId);
+  const tgtIdx = team.findIndex(p => p.id === touchTarget);
+  if (srcIdx === -1 || tgtIdx === -1) return;
+
+  const reordered = [...team];
+  const [moved] = reordered.splice(srcIdx, 1);
+  reordered.splice(tgtIdx, 0, moved);
+
+  team = reordered;
+  renderGrid();
+
+  const batch = db.batch();
+  reordered.forEach((p, i) => {
+    batch.update(teamCol.doc(String(p.id)), { order: i + 1 });
+  });
+  try { await batch.commit(); }
+  catch(err) { console.error('Touch order save failed:', err); }
 }
 
 // ─────────────────────────────────────────
